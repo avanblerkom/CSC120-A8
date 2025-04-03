@@ -45,7 +45,7 @@ public class Building {
     }
 
     /* Navigation methods */
-    public Building enter() {
+    public void enter() {
         if (activeFloor != -1) {
             throw new RuntimeException("You are already inside this Building.");
         }
@@ -110,5 +110,7 @@ public class Building {
         fordHall.goDown();
         fordHall.exit();
     }
+
+    
 
 }
