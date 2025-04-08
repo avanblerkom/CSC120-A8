@@ -70,6 +70,15 @@ public class Cafe extends Building implements CafeRequirements {
                            " + restock(int nCoffeeOunces, int nSugarPackets, int nCreams, int nCups)");
     }
 
+    @Override
+    public void goToFloor(int floorNum) {
+        if (floorNum != 1) {
+            throw new RuntimeException("You cannot move off the first floor in the Cafe. Additional floors are for storage or employees only.");
+        }
+        System.out.println("You are now on the first floor of " + this.name);
+        this.activeFloor = floorNum;
+    }
+
     public static void main(String[] args) {
         Cafe myCafe = new Cafe("Campus Cafe", "123 College St", 1, 100, 50, 30, 20);
         myCafe.sellCoffee(12, 2, 3);

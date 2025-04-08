@@ -4,19 +4,22 @@
  */
 import java.util.Hashtable;
 
-public class Library extends Building implements LibraryRequirements {
+public class Library extends Building {
 
     private Hashtable<String, Boolean> collection; // Collection of books with availability status
+    private boolean hasElevator; // Indicates if the library has an elevator
 
     /**
      * Constructor to initialize the Library.
      * @param name The name of the library.
      * @param address The address of the library.
      * @param nFloors The number of floors in the library.
+     * @param hasElevator Whether the library has an elevator.
      */
-    public Library(String name, String address, int nFloors) {
+    public Library(String name, String address, int nFloors, boolean hasElevator) {
         super(name, address, nFloors); // Call the Building constructor
         this.collection = new Hashtable<String, Boolean>(); // Initialize the collection as an empty Hashtable
+        this.hasElevator = hasElevator; // Set the elevator status
         System.out.println("You have built a library: 📖");
     }
 
@@ -28,6 +31,20 @@ public class Library extends Building implements LibraryRequirements {
         if (!collection.containsKey(title)) {
             collection.put(title, true); // Add the book as available
             System.out.println("Added \"" + title + "\" to the collection.");
+        } else {
+            System.out.println("The book \"" + title + "\" is already in the collection.");
+        }
+    }
+
+    /**
+     * Adds a book title to the collection with a specified availability status.
+     * @param title The title of the book to add.
+     * @param isAvailable Whether the book is available.
+     */
+    public void addTitle(String title, boolean isAvailable) {
+        if (!collection.containsKey(title)) {
+            collection.put(title, isAvailable);
+            System.out.println("Added \"" + title + "\" to the collection with availability: " + (isAvailable ? "Available" : "Checked out"));
         } else {
             System.out.println("The book \"" + title + "\" is already in the collection.");
         }
@@ -57,6 +74,22 @@ public class Library extends Building implements LibraryRequirements {
         if (collection.containsKey(title) && collection.get(title)) {
             collection.replace(title, false); // Mark the book as unavailable
             System.out.println("Checked out \"" + title + "\".");
+        } else if (!collection.containsKey(title)) {
+            System.out.println("The book \"" + title + "\" is not in the collection.");
+        } else {
+            System.out.println("The book \"" + title + "\" is already checked out.");
+        }
+    }
+
+    /**
+     * Checks out a book for a specified number of days.
+     * @param title The title of the book to check out.
+     * @param days The number of days the book will be borrowed.
+     */
+    public void checkOut(String title, int days) {
+        if (collection.containsKey(title) && collection.get(title)) {
+            collection.replace(title, false);
+            System.out.println("Checked out \"" + title + "\" for " + days + " days.");
         } else if (!collection.containsKey(title)) {
             System.out.println("The book \"" + title + "\" is not in the collection.");
         } else {
@@ -112,13 +145,34 @@ public class Library extends Building implements LibraryRequirements {
         }
     }
 
+    /**
+     * Override the goToFloor method to allow non-adjacent floor movement if the library has an elevator.
+     * @param floorNum The floor number to go to.
+     */
+    @Override
+    public void goToFloor(int floorNum) {
+        if (this.activeFloor == -1) {
+            throw new RuntimeException("You are not inside this Building. Must call enter() before navigating between floors.");
+        }
+        if (floorNum < 1 || floorNum > this.nFloors) {
+            throw new RuntimeException("Invalid floor number. Valid range for this Building is 1-" + this.nFloors + ".");
+        }
+        if (!this.hasElevator && Math.abs(floorNum - this.activeFloor) > 1) {
+            throw new RuntimeException("This building does not have an elevator. You can only move to adjacent floors.");
+        }
+        System.out.println("You are now on floor #" + floorNum + " of " + this.name);
+        this.activeFloor = floorNum;
+    }
+
     @Override
     public void showOptions() {
         super.showOptions(); // Call the superclass method to include general options
         System.out.println("Additional options for Library:\n" +
                            " + addTitle(String title)\n" +
+                           " + addTitle(String title, boolean isAvailable)\n" +
                            " + removeTitle(String title)\n" +
                            " + checkOut(String title)\n" +
+                           " + checkOut(String title, int days)\n" +
                            " + returnBook(String title)\n" +
                            " + containsTitle(String title)\n" +
                            " + isAvailable(String title)\n" +
@@ -126,7 +180,7 @@ public class Library extends Building implements LibraryRequirements {
     }
 
     public static void main(String[] args) {
-        Library myLibrary = new Library("Neilson Library", "7 Neilson Drive", 4);
+        Library myLibrary = new Library("Neilson Library", "7 Neilson Drive", 4, true);
         myLibrary.addTitle("Moby Dick");
         myLibrary.addTitle("Pride and Prejudice");
         myLibrary.checkOut("Moby Dick");

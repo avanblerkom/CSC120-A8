@@ -51,7 +51,6 @@ public class Building {
         }
         this.activeFloor = 1;
         System.out.println("You are now inside " + this.name + " on the ground floor.");
-        return this; // Return a pointer to the current building
     }
 
     public Building exit() {
